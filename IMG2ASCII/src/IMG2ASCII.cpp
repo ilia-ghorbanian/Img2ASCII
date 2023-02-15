@@ -85,47 +85,30 @@ int main() {
 
         }
     
-    //get all files
+
     //opencv stuff
     
     }
         std::list<std::string> arrayy{};
         std::list<std::filesystem::path> validated_images =  check_extention (list_files, arrayy);
         for (const auto& vi : validated_images) {
-            std::cout << vi << std::endl;
+            std::cout << std::filesystem::canonical(vi) << std::endl;
+            cv::Mat image_file = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_COLOR);
+            //cv::imshow("Image", image_file);
+            cv::waitKey(900);
+            cv::Mat grayscale;
+            cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
+            cv::imshow("Image", grayscale);
         };
     
 
 
 
-    //for (const auto& dir_entry : std::filesystem::directory_iterator(currentPath)) {
-    //    if (!dir_entry.is_regular_file()) {
-    //        //list_directories.push_back(dir_entry);
-    //
-    //        if (dir_entry.path().string().find("images") != -1) {
-    //            std::cout << dir_entry.path().string().find("images") << " OOOOOOOOOOOO" << std::endl;
-    //            images_directory = dir_entry;
-    //        }
-    //        
-    //    }
-    //    
-    //}
-    std::cout << "h" << std::endl;
-
-    //DEPRECATED
-        //for (const auto& directories : list_directories) {
-        //    
-        //    std::cout << directories.path().string() << std::endl;
-        //    if (directories.path().string().find("images") != -1) {
-        //        std::cout << directories.path().string().find("images") <<" OOOOOOOOOOOO" << std::endl;
-        //    }
-        //}
 
     
-    cv::Mat image_file = cv::imread(canon_image_path, cv::IMREAD_COLOR);
-    cv::imshow("Image", image_file);
     
-    cv::waitKey(0);
+    
+    
     
     
     std::cout << "Hello Donya!!!!!\n";
