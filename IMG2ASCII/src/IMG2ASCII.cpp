@@ -92,6 +92,9 @@ int main() {
         std::list<std::string> arrayy{};
         std::list<std::filesystem::path> validated_images =  check_extention (list_files, arrayy);
         for (const auto& vi : validated_images) {
+            cv::Point origin(0, 0);
+            cv::Point end(200, 200);
+
             std::cout << std::filesystem::canonical(vi) << std::endl;
             cv::Mat image_file = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_COLOR);
             //cv::imshow("Image", image_file);
@@ -99,6 +102,8 @@ int main() {
             cv::Mat grayscale;
             cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
             cv::imshow("Image", grayscale);
+            cv::LineIterator pixelated = cv::LineIterator::LineIterator(grayscale, origin, end, 2);
+            std::cout << "___________" << std::endl;
         };
     
 
