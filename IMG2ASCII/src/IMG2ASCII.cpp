@@ -98,15 +98,24 @@ int main() {
             std::cout << std::filesystem::canonical(vi) << std::endl;
             cv::Mat image_file = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_COLOR);
             //cv::imshow("Image", image_file);
-            cv::waitKey(900);
+            
             cv::Mat grayscale;
             cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
             cv::imshow("Image", grayscale);
-            cv::LineIterator pixelated = cv::LineIterator::LineIterator(grayscale, origin, end, 2);
-            std::cout << "___________" << std::endl;
-        };
-    
+            cv::waitKey(900);
+            int colum = grayscale.cols;
+            int rows = grayscale.rows;
 
+            int pixel_size = 16;
+            cv::Mat tmp;
+            cv::resize(grayscale, tmp, cv::Size(colum / pixel_size, rows / pixel_size),0, 1);
+            cv::Mat pixelated;
+            cv::resize(tmp, pixelated, cv::Size(colum, rows), 0, 0);
+            cv::imshow("Image", pixelated);
+            cv::waitKey(0);
+            
+        };
+   
 
 
 
