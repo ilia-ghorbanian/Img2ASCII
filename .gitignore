@@ -4,3 +4,4 @@
 *.vcxproj.*
 #IMG2ASCII / IMG2ASCII.vcxproj.user
 x64/
+Debug/

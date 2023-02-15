@@ -27,26 +27,59 @@ std::filesystem::directory_entry does_dir_exist (const std::filesystem::path &cu
     
 }
 
+std::list< std::filesystem::path> check_extention(std::list<std::filesystem::path> &path, std::list<std::string> &types) {
+    std::list< std::filesystem::path> validateds{};
+    if (types.empty()) { //default behavior incase no types were given
+        std::list<std::string> default_type{ "jpg","png" };
+        return check_extention(path, default_type);
+    };
+    for (const auto& file : path) {
+        for (const std::string type : types) {
+
+            if ((file.extension().string().find(type)) != -1) { // if extention is legal
+                validateds.push_back(file);
+
+
+
+
+            };
+
+        };
+    };
+            
+                //auto string_ext = path.extension().string();
+                return validateds;
+};
+
 
 int main() {
 
 
-    std::filesystem::directory_entry images_directory{};
+    //std::filesystem::directory_entry images_directory{};
+
+    //ToDo: get user input for find this
     std::string findthis = "images";
+    // the path from root
     std::string canon_image_path{};
     
     const std::filesystem::path currentPath(".");
-    //DEPRECATED
-        std::vector<std::filesystem::path> list_files{};
+    // ToDo:
+        std::list<std::filesystem::path> list_files{};
 
 
 
     std::filesystem::directory_entry images_path = does_dir_exist(currentPath, findthis);
 
-    if (!images_path.path().empty()) {
+
+    if (!images_path.path().empty()) { // if findthis string was found
         std::cout << "eyo" << std::endl;
         for (const auto& dir_entry : std::filesystem::directory_iterator(images_path.path())) {
             canon_image_path = std::filesystem::canonical(dir_entry.path()).string();
+            
+            list_files.push_back(dir_entry.path());
+            // append all images in path to list_files list
+             
+            
             //std::cout << dir_entry.path().root_path() << " root path" << std::endl;
             //dir_entry.path().extension
 
@@ -56,7 +89,11 @@ int main() {
     //opencv stuff
     
     }
-
+        std::list<std::string> arrayy{};
+        std::list<std::filesystem::path> validated_images =  check_extention (list_files, arrayy);
+        for (const auto& vi : validated_images) {
+            std::cout << vi << std::endl;
+        };
     
 
 
