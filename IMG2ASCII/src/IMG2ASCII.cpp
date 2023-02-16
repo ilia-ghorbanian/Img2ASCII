@@ -102,19 +102,81 @@ int main() {
             cv::Mat grayscale;
             cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
             cv::imshow("Image", grayscale);
-            cv::waitKey(900);
+            cv::waitKey(0);
             int colum = grayscale.cols;
             int rows = grayscale.rows;
 
-            int pixel_size = 16;
+            cv::Mat edges;
+
+            cv::Canny(grayscale, edges, 0, 450);
+           
+
+            cv::imshow("Image", edges);
+            cv::waitKey(0);
+
+
+            std::cout << edges << std::endl;
+
+            cv::Mat threshed;
+            cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
+
+            std::cout << threshed << std::endl;
+
+            cv::imshow("Image", threshed);
+            cv::waitKey(0);
+            int pixel_size = 25;
             cv::Mat tmp;
             cv::resize(grayscale, tmp, cv::Size(colum / pixel_size, rows / pixel_size),0, 1);
             cv::Mat pixelated;
             cv::resize(tmp, pixelated, cv::Size(colum, rows), 0, 0);
+            
+
+
+
+
+                                //TOMORROW
+            //TODO: Map on threshed image to grayscale image
+                //grayscaled should become an invert of the threshed image
+                    //this will save the highlights that the grayscale has, but with the data/detail of the threshed image.
+            //TODO: REMOVE THE FUCKING PIC.
+
+
+
+
+
+
+
+            // cv::Mat testing;
+            // pixelated.copyTo(testing);
+            // 
+            // cv::Mat D(testing, cv::Rect(10, 10, 100, 100)); // using a rectangle
+            // cv::imshow("Image", D);
+            // cv::waitKey(0);
+            // 
+            // cv::Mat E = testing(cv::Range::all(), cv::Range(1, 20)); // using row and column boundaries
+            // 
+            // cv::imshow("AAAAAAAAAA", testing);
+            // 
+            // std::cout << cv::format(E,cv::Formatter::FMT_PYTHON) << std::endl;
+
+            //grayscale(,) 
+
+            cv::Mat E = pixelated(cv::Range(0,4), cv::Range(50, 54));
             cv::imshow("Image", pixelated);
+            std::cout << cv::format(E, cv::Formatter::FMT_PYTHON) << std::endl;
             cv::waitKey(0);
             
         };
+
+        /*
+                                     ///
+                                     ///
+                                     ///
+                                     ///
+                                     ///
+        
+        
+        */
    
 
 
