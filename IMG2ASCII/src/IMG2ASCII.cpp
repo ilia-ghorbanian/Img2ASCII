@@ -111,16 +111,31 @@ int main() {
             cv::Canny(grayscale, edges, 0, 450);
            
 
+            auto lmaoidkwhattoputhere = edges.getUMat(cv::AccessFlag(1));
+
+
+
             cv::imshow("Image", edges);
             cv::waitKey(0);
 
 
-            std::cout << edges << std::endl;
+            //std::cout << edges << std::endl;
+
+            //auto formatted = cv::Formatter::get(cv::Formatter::FMT_PYTHON)->format(edges);
+
+            int x = 0, y = 0;
+            //cv::Vec2b intensity = edges.at<cv::Vec2b>(y, x);
+            auto lmao = edges.channels();
+            
+
+            
+
+
 
             cv::Mat threshed;
             cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
 
-            std::cout << threshed << std::endl;
+            //std::cout << threshed << std::endl;
 
             cv::imshow("Image", threshed);
             cv::waitKey(0);
@@ -130,17 +145,47 @@ int main() {
             cv::Mat pixelated;
             cv::resize(tmp, pixelated, cv::Size(colum, rows), 0, 0);
             
+            for (int i = 0; i < threshed.rows-1; i++) {
+                for (int j = 0; j < threshed.cols -1; j++) {
 
 
+                    //TODO: get the threshed intensity all in a list
+                        //DO the same with grayscale image
+                        //now we have two parallel arrays, if threshed.intensity > 0,
+                            //keep the same grayscale values
+                        //Else:
+                            //grayscale intensity = 0
 
+
+                    //NEXT try to figure out asci values for the different shades of gray
+                    //try to create the ascii
+
+
+                    //NEXT write to cout // curses.h? urwid? win.h? etc
+
+
+                    cv::Scalar intensity = threshed.at<uchar>(cv::Point(j, i));
+                    if (intensity[0] > 0) {
+
+                    //std::cout << i << " now j: " << j << std::endl;
+                    std::cout << intensity << std::endl;
+                    }
+                }
+
+                //cv::imshow:
+                
+                
+                //std::cout << "Blue:" << blue << std::endl;
+            }
+
+            
 
                                 //TOMORROW
             //TODO: Map on threshed image to grayscale image
                 //grayscaled should become an invert of the threshed image
                     //this will save the highlights that the grayscale has, but with the data/detail of the threshed image.
-            //TODO: REMOVE THE FUCKING PIC.
-
-
+            
+            
 
 
 
