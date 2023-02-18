@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <algorithm> 
 #include "../includes/const.h"
 #include <filesystem>
 #include <format>
@@ -53,8 +54,6 @@ std::list< std::filesystem::path> check_extention(std::list<std::filesystem::pat
 int main() {
 
 
-
-
     //ToDo: get user input for find this
     std::string findthis = "images";
 
@@ -64,7 +63,6 @@ int main() {
     const std::filesystem::path currentPath(".");
 
     std::list<std::filesystem::path> list_files{};
-
 
 
     std::filesystem::directory_entry images_path = does_dir_exist(currentPath, findthis);
@@ -88,16 +86,18 @@ int main() {
 
             cv::Mat grayscale = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_GRAYSCALE);
 
-            
 
-           // cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
-       
+            // cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
 
 
             cv::Mat threshed;
-            cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
+            int pixel_size = 4; // pixel size to refactor and resize the image to
+            int cols = grayscale.cols;
+            int rows = grayscale.rows;
+            cv::resize(grayscale, grayscale, cv::Size(cols / pixel_size, rows / pixel_size), 0, 1); //resize the image
+            cv::resize(grayscale, grayscale, cv::Size(cols, rows), 0, 0);
 
-            
+            cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
 
 
             // loop in the image matrix
@@ -105,90 +105,116 @@ int main() {
                 for (int j = 0; j < threshed.cols; j++) {
 
                     cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
-                    
-                 
-                     if (threshed_value[0] > 0) { 
-                         threshed.at<uchar>(cv::Point(j, i)) = grayscale.at<uchar>(cv::Point(j, i));
-                         // adds highliting and varied intensity to the image 
-                     }
-                    
-     
-                    //NEXT try to figure out asci values for the different shades of gray
-                    //try to create the ascii
 
+                    if (threshed_value[0] > 0) {
+                        threshed.at<uchar>(cv::Point(j, i)) = grayscale.at<uchar>(cv::Point(j, i));
+                        // adds highliting and varied intensity to the image
 
-                    //NEXT write to cout // curses.h? urwid? win.h? etc
+                    }
 
                 }
-
             }
-            int pixel_size = 3; // pixel size to refactor and resize the image to
-            cv::resize(threshed, threshed, cv::Size(threshed.cols / pixel_size, threshed.rows / pixel_size), 0, 1); //resize the image
-            cv::imshow("Image", threshed);
-            cv::waitKey(0);
-            //std::cout << cv::format(threshed, cv::Formatter::FMT_PYTHON) << std::endl;
 
 
-            std::ofstream file("outputs/output.txt"); // ToDo: use file name instead of output.txt
+                //std::cout << cv::format(threshed, cv::Formatter::FMT_PYTHON) << std::endl;
 
 
-            short ascii1 = 0x2591;
-            short ascii2 = 0x258E;
-            short ascii3 = 0x2592;
-            short ascii4 = 0x2593;
- 
-
-            for (int i = 0; i < threshed.rows; i++) {
-                for (int j = 0; j < threshed.cols; j++) {
-
-                    cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
+                std::ofstream file("outputs/output.txt", std::ios::app); // ToDo: use file name instead of output.txt
 
 
-                    // factoring the pixels into four different characters
-                    if (threshed_value[0] < 42) {
-                        file << " ";
-                        std::cout << ".";
+                char ascii1 = '\u2591';
+                char ascii2 = '\u2581';
+                char ascii3 = '\u2592';
+                char ascii4 = '\u2593';
+
+                //TODO: map the range of grayscale(threshed image) values to s_grayscale values
+                //NEXT write to cout // curses.h? urwid? win.h? etc
+
+                std::string s_grayscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\" ^ `'.";
+                std::reverse(s_grayscale.begin(), s_grayscale.end());
+
+                cv::resize(threshed, threshed, cv::Size(), 0.3, 0.3, 0);
+                cv::imshow("Image", threshed);
+                cv::waitKey(0);
 
 
 
-                    }
-                    else if(threshed_value[0] < 85) {
-                        //file << char(ascii1);
-                        file << ":";
-                        std::cout << ":";
-
-
-                    }
-                    else if(threshed_value[0] < 127) {
-                        file << "|";
-                        std::cout << "|";
-
-                    }
-                    else if(threshed_value[0] < 170) {
-                        file << char(ascii2);
-                        std::cout << char(ascii2);
-                    }
-                    else if(threshed_value[0] < 212) {
-                        file << char(ascii3);
-                        std::cout << char(ascii3);
-                    }
-                    else if(threshed_value[0] <= 255) {
-                        file << char(ascii4);
-                        std::cout << char(ascii4);
-                    }
+                int t;
+                int a_1 = 0, a_2 = 254;
+                int b_1 = 0, b_2 = 69;
+                for (int i = 0; i < threshed.rows; i++) {
+                    for (int j = 0; j < threshed.cols; j++) {
 
 
 
+                        cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
+                        //TODO: should just map threshed_value[0] to the remap of grayscale(threshed image) values to s_grayscale values instead of this if/else
+                        // t = b_1 + ( (s-a_1) (b_2-b1) / (a_2 - a_1) )
+                        // [a_1 = 0, a_2 = 254] 
+                        // [b_1 = 0, a_2 = 69 ]
+                        // s = threshed_value[0]
+                        int s = threshed_value[0];
+                        t = b_1 + ((s - a_1) * (b_2 - b_1) / (a_2 - a_1));
+                        if (t != 0) {
 
+                            std::cout << s_grayscale[t];
+                            file << s_grayscale[t];
+                        }
+                        else {
+                            std::cout << ' ';
+                            file << ' ';
+                        }
+                        
+                        //std::cout << ".";
+
+                        // factoring the pixels into four different characters
+                        // if (threshed_value[0] < 42) {
+                        //     file << " ";
+                        //     //std::cout << ".";
+                        // 
+                        // 
+                        // 
+                        // }
+                        // else if (threshed_value[0] < 85) {
+                        //     //file << char(ascii1);
+                        //     file << ":";
+                        //     //std::cout << ":";
+                        // 
+                        // 
+                        // }
+                        // else if (threshed_value[0] < 127) {
+                        //     file << "-";
+                        //     //std::cout << "-";
+                        // 
+                        // }
+                        // else if (threshed_value[0] < 170) {
+                        //     //file << char(ascii2);
+                        //     //std::cout << char(ascii2);
+                        //     file << 'r';
+                        //     //std::cout << 'r';
+                        // }
+                        // else if (threshed_value[0] < 212) {
+                        //     //file << char(ascii3);
+                        //     //std::cout << ascii3;
+                        //     file << "X";
+                        //     //std::cout << "X";
+                        // 
+                        // }
+                        // else if (threshed_value[0] <= 255) {
+                        //     //file << char(ascii4);
+                        //     //std::cout << ascii4;
+                        //     file << "$";
+                        //     //std::cout << "$";
+                        // }
+
+
+                    };
+                    file << std::endl;
+                    std::cout << std::endl;
 
                 };
-                file << std::endl;
-                std::cout << std::endl;
-
+                file.close();
             };
-            file.close();
-        };
+};
 
  
-
-}
