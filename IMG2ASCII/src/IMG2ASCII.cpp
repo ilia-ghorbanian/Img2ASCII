@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "../includes/const.h"
 #include <filesystem>
 #include <format>
@@ -38,9 +39,6 @@ std::list< std::filesystem::path> check_extention(std::list<std::filesystem::pat
 
             if ((file.extension().string().find(type)) != -1) { // if extention is legal
                 validateds.push_back(file);
-
-
-
 
             };
 
@@ -99,12 +97,12 @@ int main() {
             cv::Mat threshed;
             cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
 
-            int pixel_size = 2; // pixel size to refactor and resize the image to
+            
 
 
             // loop in the image matrix
-            for (int i = 0; i < threshed.rows-1; i++) {
-                for (int j = 0; j < threshed.cols -1; j++) {
+            for (int i = 0; i < threshed.rows; i++) {
+                for (int j = 0; j < threshed.cols; j++) {
 
                     cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
                     
@@ -114,7 +112,6 @@ int main() {
                          // adds highliting and varied intensity to the image 
                      }
                     
-
      
                     //NEXT try to figure out asci values for the different shades of gray
                     //try to create the ascii
@@ -125,10 +122,71 @@ int main() {
                 }
 
             }
-            cv::resize(threshed, threshed, cv::Size(threshed.cols / 2, threshed.rows / 2), 0, 1); //resize the image
+            int pixel_size = 3; // pixel size to refactor and resize the image to
+            cv::resize(threshed, threshed, cv::Size(threshed.cols / pixel_size, threshed.rows / pixel_size), 0, 1); //resize the image
             cv::imshow("Image", threshed);
             cv::waitKey(0);
+            //std::cout << cv::format(threshed, cv::Formatter::FMT_PYTHON) << std::endl;
 
+
+            std::ofstream file("outputs/output.txt"); // ToDo: use file name instead of output.txt
+
+
+            short ascii1 = 0x2591;
+            short ascii2 = 0x258E;
+            short ascii3 = 0x2592;
+            short ascii4 = 0x2593;
+ 
+
+            for (int i = 0; i < threshed.rows; i++) {
+                for (int j = 0; j < threshed.cols; j++) {
+
+                    cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
+
+
+                    // factoring the pixels into four different characters
+                    if (threshed_value[0] < 42) {
+                        file << " ";
+                        std::cout << ".";
+
+
+
+                    }
+                    else if(threshed_value[0] < 85) {
+                        //file << char(ascii1);
+                        file << ":";
+                        std::cout << ":";
+
+
+                    }
+                    else if(threshed_value[0] < 127) {
+                        file << "|";
+                        std::cout << "|";
+
+                    }
+                    else if(threshed_value[0] < 170) {
+                        file << char(ascii2);
+                        std::cout << char(ascii2);
+                    }
+                    else if(threshed_value[0] < 212) {
+                        file << char(ascii3);
+                        std::cout << char(ascii3);
+                    }
+                    else if(threshed_value[0] <= 255) {
+                        file << char(ascii4);
+                        std::cout << char(ascii4);
+                    }
+
+
+
+
+
+                };
+                file << std::endl;
+                std::cout << std::endl;
+
+            };
+            file.close();
         };
 
  
