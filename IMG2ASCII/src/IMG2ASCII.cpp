@@ -10,7 +10,7 @@
 
 //namespace fs = std::filesystem;
 
-std::filesystem::directory_entry does_dir_exist (const std::filesystem::path &current_path, std::string &dir_name) {
+std::filesystem::directory_entry does_dir_exist (const std::filesystem::path &current_path, std::string &dir_name) { // check for directory existence
     
     for (const auto& dir_entry : std::filesystem::directory_iterator(current_path)) {
         if (!dir_entry.is_regular_file()) {
@@ -27,7 +27,7 @@ std::filesystem::directory_entry does_dir_exist (const std::filesystem::path &cu
     
 }
 
-std::list< std::filesystem::path> check_extention(std::list<std::filesystem::path> &path, std::list<std::string> &types) {
+std::list< std::filesystem::path> check_extention(std::list<std::filesystem::path> &path, std::list<std::string> &types) { //validate file extentions
     std::list< std::filesystem::path> validateds{};
     if (types.empty()) { //default behavior incase no types were given
         std::list<std::string> default_type{ "jpg","png" };
@@ -55,16 +55,17 @@ std::list< std::filesystem::path> check_extention(std::list<std::filesystem::pat
 int main() {
 
 
-    //std::filesystem::directory_entry images_directory{};
+
 
     //ToDo: get user input for find this
     std::string findthis = "images";
+
     // the path from root
     std::string canon_image_path{};
     
     const std::filesystem::path currentPath(".");
-    // ToDo:
-        std::list<std::filesystem::path> list_files{};
+
+    std::list<std::filesystem::path> list_files{};
 
 
 
@@ -72,167 +73,64 @@ int main() {
 
 
     if (!images_path.path().empty()) { // if findthis string was found
-        std::cout << "eyo" << std::endl;
+
         for (const auto& dir_entry : std::filesystem::directory_iterator(images_path.path())) {
-            canon_image_path = std::filesystem::canonical(dir_entry.path()).string();
+            canon_image_path = std::filesystem::canonical(dir_entry.path()).string(); // get the canon_path for all the  images 
             
-            list_files.push_back(dir_entry.path());
-            // append all images in path to list_files list
-             
-            
-            //std::cout << dir_entry.path().root_path() << " root path" << std::endl;
-            //dir_entry.path().extension
+            list_files.push_back(dir_entry.path()); // append all images in path to list_files
 
         }
-    
-
-    //opencv stuff
-    
     }
-        std::list<std::string> arrayy{};
-        std::list<std::filesystem::path> validated_images =  check_extention (list_files, arrayy);
-        for (const auto& vi : validated_images) {
-            cv::Point origin(0, 0);
-            cv::Point end(200, 200);
-
-            std::cout << std::filesystem::canonical(vi) << std::endl;
-            cv::Mat image_file = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_COLOR);
-            //cv::imshow("Image", image_file);
-            
-            cv::Mat grayscale;
-            cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
-            cv::imshow("Image", grayscale);
-            cv::waitKey(0);
-            int colum = grayscale.cols;
-            int rows = grayscale.rows;
-
-            cv::Mat edges;
-
-            cv::Canny(grayscale, edges, 0, 450);
-           
-
-            auto lmaoidkwhattoputhere = edges.getUMat(cv::AccessFlag(1));
+        std::list<std::string> extention_list{}; // the extentions which the user wants to validate with
+        std::list<std::filesystem::path> validated_images =  check_extention (list_files, extention_list); // extention validator
 
 
+    // opencv stuff:
+        for (const auto& vi : validated_images) { // loop inside validated images list
 
-            cv::imshow("Image", edges);
-            cv::waitKey(0);
-
-
-            //std::cout << edges << std::endl;
-
-            //auto formatted = cv::Formatter::get(cv::Formatter::FMT_PYTHON)->format(edges);
-
-            int x = 0, y = 0;
-            //cv::Vec2b intensity = edges.at<cv::Vec2b>(y, x);
-            auto lmao = edges.channels();
-            
+            cv::Mat grayscale = cv::imread(std::filesystem::canonical(vi).string(), cv::IMREAD_GRAYSCALE);
 
             
 
+           // cv::cvtColor(image_file, grayscale, cv::COLOR_RGB2GRAY);
+       
 
 
             cv::Mat threshed;
             cv::adaptiveThreshold(grayscale, threshed, 100, 1, 1, 61, 6);
 
-            //std::cout << threshed << std::endl;
+            int pixel_size = 2; // pixel size to refactor and resize the image to
 
-            cv::imshow("Image", threshed);
-            cv::waitKey(0);
-            int pixel_size = 25;
-            cv::Mat tmp;
-            cv::resize(grayscale, tmp, cv::Size(colum / pixel_size, rows / pixel_size),0, 1);
-            cv::Mat pixelated;
-            cv::resize(tmp, pixelated, cv::Size(colum, rows), 0, 0);
-            
+
+            // loop in the image matrix
             for (int i = 0; i < threshed.rows-1; i++) {
                 for (int j = 0; j < threshed.cols -1; j++) {
 
+                    cv::Scalar threshed_value = threshed.at<uchar>(cv::Point(j, i)); // get the value for each pixel
+                    
+                 
+                     if (threshed_value[0] > 0) { 
+                         threshed.at<uchar>(cv::Point(j, i)) = grayscale.at<uchar>(cv::Point(j, i));
+                         // adds highliting and varied intensity to the image 
+                     }
+                    
 
-                    //TODO: get the threshed intensity all in a list
-                        //DO the same with grayscale image
-                        //now we have two parallel arrays, if threshed.intensity > 0,
-                            //keep the same grayscale values
-                        //Else:
-                            //grayscale intensity = 0
-
-
+     
                     //NEXT try to figure out asci values for the different shades of gray
                     //try to create the ascii
 
 
                     //NEXT write to cout // curses.h? urwid? win.h? etc
 
-
-                    cv::Scalar intensity = threshed.at<uchar>(cv::Point(j, i));
-                    if (intensity[0] > 0) {
-
-                    //std::cout << i << " now j: " << j << std::endl;
-                    std::cout << intensity << std::endl;
-                    }
                 }
 
-                //cv::imshow:
-                
-                
-                //std::cout << "Blue:" << blue << std::endl;
             }
-
-            
-
-                                //TOMORROW
-            //TODO: Map on threshed image to grayscale image
-                //grayscaled should become an invert of the threshed image
-                    //this will save the highlights that the grayscale has, but with the data/detail of the threshed image.
-            
-            
-
-
-
-
-
-            // cv::Mat testing;
-            // pixelated.copyTo(testing);
-            // 
-            // cv::Mat D(testing, cv::Rect(10, 10, 100, 100)); // using a rectangle
-            // cv::imshow("Image", D);
-            // cv::waitKey(0);
-            // 
-            // cv::Mat E = testing(cv::Range::all(), cv::Range(1, 20)); // using row and column boundaries
-            // 
-            // cv::imshow("AAAAAAAAAA", testing);
-            // 
-            // std::cout << cv::format(E,cv::Formatter::FMT_PYTHON) << std::endl;
-
-            //grayscale(,) 
-
-            cv::Mat E = pixelated(cv::Range(0,4), cv::Range(50, 54));
-            cv::imshow("Image", pixelated);
-            std::cout << cv::format(E, cv::Formatter::FMT_PYTHON) << std::endl;
+            cv::resize(threshed, threshed, cv::Size(threshed.cols / 2, threshed.rows / 2), 0, 1); //resize the image
+            cv::imshow("Image", threshed);
             cv::waitKey(0);
-            
+
         };
 
-        /*
-                                     ///
-                                     ///
-                                     ///
-                                     ///
-                                     ///
-                                     ///
-        
-        
-        */
-   
-
-
-
-    
-    
-    
-    
-    
-    
-    std::cout << "Hello Donya!!!!!\n";
+ 
 
 }
