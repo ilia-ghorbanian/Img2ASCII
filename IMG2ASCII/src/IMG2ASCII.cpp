@@ -51,6 +51,26 @@ std::list< std::filesystem::path> check_extention(std::list<std::filesystem::pat
 };
 
 
+// cv::Mat blocking(int width , int height, int block_width, int block_height, cv::Mat tmp) {
+//     for (int bx = 0; bx < width; bx += block_width) // image x=0
+//         for (int by = 0; by < height; by += block_height) {// image y=0
+//             float sum = 0;
+//             for (int x = 0; x < block_width; ++x) //block x = 1
+//                 for (int y = 0; y < block_height; ++y) { // block y = 1
+//                     //sum += array[bx + x][by + y];
+//                     sum += tmp.at<uchar>(cv::Point(by + y, bx + x)); // sum of INTENSITY VALUE AT (y,x) = (y = 0+1, x = 0+1)
+//                 }
+//             int average = sum / (block_width * block_height);
+//             new_array[bx][by] = average;
+//         }
+// 
+//     return tmp;
+// }
+
+
+
+
+
 int main() {
 
 
@@ -91,7 +111,7 @@ int main() {
 
 
             cv::Mat threshed;
-            int pixel_size = 4; // pixel size to refactor and resize the image to
+            int pixel_size = 1; // pixel size to refactor and resize the image to
             int cols = grayscale.cols;
             int rows = grayscale.rows;
             cv::resize(grayscale, grayscale, cv::Size(cols / pixel_size, rows / pixel_size), 0, 1); //resize the image
@@ -133,9 +153,12 @@ int main() {
                 std::string s_grayscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\" ^ `'.";
                 std::reverse(s_grayscale.begin(), s_grayscale.end());
 
-                cv::resize(threshed, threshed, cv::Size(), 0.3, 0.3, 0);
+                cv::resize(threshed, threshed, cv::Size(), 0.15, 0.15, 3);
+                
+                //cv::resize(threshed, threshed, cv::Size(), 2, 2, 0);
                 cv::imshow("Image", threshed);
                 cv::waitKey(0);
+
 
 
 
@@ -164,7 +187,12 @@ int main() {
                             std::cout << ' ';
                             file << ' ';
                         }
-                        
+
+         
+
+
+
+
                         //std::cout << ".";
 
                         // factoring the pixels into four different characters
