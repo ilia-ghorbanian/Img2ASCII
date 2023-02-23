@@ -67,7 +67,9 @@ std::list< std::filesystem::path> check_extention(std::list<std::filesystem::pat
 //     return tmp;
 // }
 
-
+int map(int a_1, int a_2, int b_1, int b_2, int s) {
+    return b_1 + ((s - a_1) * (b_2 - b_1) / (a_2 - a_1));
+}
 
 
 
@@ -177,7 +179,8 @@ int main() {
                         // [b_1 = 0, a_2 = 69 ]
                         // s = threshed_value[0]
                         int s = threshed_value[0];
-                        t = b_1 + ((s - a_1) * (b_2 - b_1) / (a_2 - a_1));
+                        t = map(a_1, a_2, b_1, b_2, s);
+                        //t = b_1 + ((s - a_1) * (b_2 - b_1) / (a_2 - a_1));
                         if (t != 0) {
 
                             std::cout << s_grayscale[t];
@@ -187,11 +190,6 @@ int main() {
                             std::cout << ' ';
                             file << ' ';
                         }
-
-         
-
-
-
 
                         //std::cout << ".";
 
